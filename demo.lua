@@ -1,6 +1,15 @@
 local Pine3D = require("Pine3D")
 
 --[[
+    Things left to do: (that i can think of now)
+
+    - [ ] Scaling
+    - [ ] Frame interpolation
+    - [ ] Better text support in the python script
+    - [ ] Hide objects
+    - [ ] Export camera movement
+    - [ ] Timing, figure that out
+    - [ ] THE ACTUAL ANIMATION!!
 
 ]]--
 
