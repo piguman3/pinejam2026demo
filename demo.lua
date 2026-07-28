@@ -10,7 +10,7 @@ local Pine3D = require("Pine3D")
     - [ ] Export camera movement
     - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] Timing, figure that out
-    
+
     - [ ] THE ACTUAL ANIMATION!!
 
     - [ ] License + README
@@ -101,7 +101,7 @@ local function updateModelFrame(model, keyframe)
             model[channel+1] = value
         elseif type==1 then -- Rotation
             model[channel+1] = value
-        elseif type==2 then -- Scale (TODO)
+        elseif type==2 then -- Scale
             model[channel+4] = value
         elseif type==3 then -- Hide (TODO)
 
