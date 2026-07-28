@@ -12,6 +12,9 @@ local Pine3D = require("Pine3D")
     - [X] Animation data block
 
     - [ ] THE ACTUAL ANIMATION!!
+        - [ ] Grease pencil storyboard main actions + effects
+        - [ ] Main animation
+        - [ ] Effects (the demo shit)
 
     - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] License + README
