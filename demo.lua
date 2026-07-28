@@ -277,7 +277,7 @@ local function music()
 
     local time = os.epoch("utc")
     local nextTime = math.ceil(time/1000) * 1000
-    sleep((nextTime-time)/1000)
+    sleep((nextTime-time)/1000) -- Weird idea, not sure if it actually does anything
     musicReady = true
     repeat sleep() until graphicsReady
     for chunk in io.lines("janecut.dfpwm", 16 * 1024) do
