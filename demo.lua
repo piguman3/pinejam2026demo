@@ -6,10 +6,10 @@ local Pine3D = require("Pine3D")
     - [X] Scaling
     - [X] Frame interpolation (with easing!)
     - [X] Better text support in the python script
-    - [ ] Hide objects
+    - [X] Hide objects
     - [X] Export camera movement
     - [X] Timing, figure that out (seems fine? might look into this later again though.)
-    - [ ] Animation data block
+    - [X] Animation data block
 
     - [ ] THE ACTUAL ANIMATION!!
 
@@ -89,6 +89,10 @@ local actions = {
             local keyframe = output.keyframes[modelID][framenum]
             keyframe[channel] = value
         end
+    end,
+    [4] = function(file, output) -- Global animation data block (u16 frame_start, u16 frame_end)
+        output.frameStart = string.unpack(">I2", file.read(2))
+        output.frameEnd = string.unpack(">I2", file.read(2))
     end
 }
 
@@ -115,7 +119,7 @@ end
 
 local function lerp(a, b, t) return a + (b - a) * t end
 
-local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerpVal)
+local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerpVal, isvisible)
     local valuePrev = prevKeyframe[channel]
     local valueNext = nextKeyframe[channel]
 
@@ -133,8 +137,8 @@ local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerp
         model[channel+1] = valueLerp
     elseif type==2 then -- Scale
         model[channel+4] = valueLerp
-    elseif type==3 then -- Hide (TODO)
-
+    elseif type==3 then -- Hide
+        model.visible = valuePrev==0
     end
 end
 
@@ -197,6 +201,7 @@ local function graphics()
     local objects = {}
     for k,v in pairs(anim.models) do
         objects[k] = ThreeDFrame:newObject(v, 0, 0, 0, 0, 0, 0)
+        objects[k].visible = false
     end
 
     graphicsReady = true
@@ -204,7 +209,14 @@ local function graphics()
 
     local startTime = os.epoch("utc")
     while 1 do
-        local currentFrame = math.floor((os.epoch("utc") - startTime) / 50)
+        local currentFrame = math.floor((os.epoch("utc") - startTime) / 50) + anim.frameStart
+
+        if currentFrame>anim.frameEnd then
+            for x=0,15 do
+                term.setPaletteColor(2^x, term.getNativeColor(2^x))
+            end
+            return
+        end
 
         for modelID,keyframes in pairs(anim.keyframes) do
             for channel=0,9 do
@@ -240,7 +252,14 @@ local function graphics()
             end
         end
 
-        ThreeDFrame:drawObjects(objects)
+        local visibleobjects = {}
+        for k,v in pairs(objects) do
+            if v.visible then
+                visibleobjects[k] = objects[k]
+            end
+        end
+
+        ThreeDFrame:drawObjects(visibleobjects)
         ThreeDFrame:drawBuffer()
         sleep()
     end
