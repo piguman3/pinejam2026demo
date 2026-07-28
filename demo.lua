@@ -7,13 +7,13 @@ local Pine3D = require("Pine3D")
     - [X] Frame interpolation (with easing!)
     - [X] Better text support in the python script
     - [ ] Hide objects
-    - [ ] Export camera movement
-    - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
-    - [ ] Timing, figure that out
+    - [X] Export camera movement
+    - [X] Timing, figure that out (seems fine? might look into this later again though.)
     - [ ] Animation data block
 
     - [ ] THE ACTUAL ANIMATION!!
 
+    - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] License + README
     - [ ] Pinejam post + Installer
 
@@ -55,6 +55,26 @@ local actions = {
     [2] = function(file, output) -- Add list of keyframes (u8 model_id, u8 channel, u16 keyframecount, [u16 frame_number, f32 value, ...])
         local modelID = string.byte(file.read(1))
         local channel = string.byte(file.read(1)) -- 0:location, 1:rotation, 2:scale, 3:hide_render (times 3)
+
+        local count = string.unpack(">I2", file.read(2))
+
+        for x=1,count do
+            local framenum = string.unpack(">I2", file.read(2))
+            local value = string.unpack(">f", file.read(4))
+
+            if output.keyframes[modelID][framenum]==nil then
+                output.keyframes[modelID][framenum] = {}
+            end
+            
+            local keyframe = output.keyframes[modelID][framenum]
+            keyframe[channel] = value
+        end
+    end,
+    [3] = function(file, output) -- Add list of camera keyframes (u8 channel, u16 keyframecount, [u16 frame_number, f32 value, ...])
+        -- Yes, this is repeated code. I don't know man.
+        local modelID = -1
+        output.keyframes[modelID] = {}
+        local channel = string.byte(file.read(1)) -- 0:location, 1:rotation, 2:fov in degrees (times 3)
 
         local count = string.unpack(">I2", file.read(2))
 
@@ -115,6 +135,27 @@ local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerp
         model[channel+4] = valueLerp
     elseif type==3 then -- Hide (TODO)
 
+    end
+end
+
+local function updateCameraFrame(ThreeDFrame, prevKeyframe, nextKeyframe, channel, lerpVal)
+    local valuePrev = prevKeyframe[channel]
+    local valueNext = nextKeyframe[channel]
+
+    local valueLerp
+    if valuePrev and valueNext then
+        valueLerp = lerp(valuePrev, valueNext, lerpVal)
+
+        local type = math.floor(channel/3)
+        local axis = channel%3
+
+        if type==0 then -- Location
+            ThreeDFrame.camera[channel+1] = valueLerp
+        elseif type==1 then -- Rotation
+            ThreeDFrame.camera[channel+1] = valueLerp
+        elseif type==2 then -- FOV
+            ThreeDFrame:setFoV(valueLerp)
+        end
     end
 end
 
@@ -191,7 +232,11 @@ local function graphics()
                 else
                     lerpVal = 0
                 end
-                updateModelFrame(objects[modelID], keyframes[prevFrame], keyframes[nextFrame], channel, easeInOutSine(lerpVal))
+                if modelID>0 then
+                    updateModelFrame(objects[modelID], keyframes[prevFrame], keyframes[nextFrame], channel, easeInOutSine(lerpVal))
+                else
+                    updateCameraFrame(ThreeDFrame, keyframes[prevFrame], keyframes[nextFrame], channel, easeInOutSine(lerpVal))
+                end
             end
         end
 
