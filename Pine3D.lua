@@ -514,7 +514,7 @@ end
 ---@param rotY number?
 ---@param rotZ number?
 ---@return CollapsedModel
-local function rotateCollapsedModel(model, rotX, rotY, rotZ)
+local function scaleAndRotateCollapsedModel(model, rotX, rotY, rotZ, scaleX, scaleY, scaleZ)
 	local rotXS, rotXC = 0, 1
 	local rotYS, rotYC = 0, 1
 	local rotZS, rotZC = 0, 1
@@ -532,6 +532,24 @@ local function rotateCollapsedModel(model, rotX, rotY, rotZ)
 		local x1, y1, z1 = polygon[1], polygon[2], polygon[3]
 		local x2, y2, z2 = polygon[4], polygon[5], polygon[6]
 		local x3, y3, z3 = polygon[7], polygon[8], polygon[9]
+
+		if scaleX then
+			x1 = x1 * scaleX
+			x2 = x2 * scaleX
+			x3 = x3 * scaleX
+		end
+
+		if scaleY then
+			y1 = y1 * scaleY
+			y2 = y2 * scaleY
+			y3 = y3 * scaleY
+		end
+
+		if scaleZ then
+			z1 = z1 * scaleZ
+			z2 = z2 * scaleZ
+			z3 = z3 * scaleZ
+		end
 
 		if rotY then
 			x1, y1, z1 = rotatePolygonY(x1, y1, z1, rotYS, rotYC)
@@ -1430,8 +1448,12 @@ local function newFrame(x, y, w, h)
 		local rotX = object[4]
 		local rotY = object[5]
 		local rotZ = object[6]
-		if (rotX and rotX ~= 0) or (rotY and rotY ~= 0) or (rotZ and rotZ ~= 0) then
-			model = rotateCollapsedModel(model, rotX, rotY, rotZ)
+		local scaleX = object[10]
+		local scaleY = object[11]
+		local scaleZ = object[12]
+		if (rotX and rotX ~= 0) or (rotY and rotY ~= 0) or (rotZ and rotZ ~= 0) or
+			(scaleX and scaleX ~= 0) or (scaleY and scaleY ~= 0) or (scaleZ and scaleZ ~= 0) then
+			model = scaleAndRotateCollapsedModel(model, rotX, rotY, rotZ, scaleX, scaleY, scaleZ)
 		end
 		computePolyCamDistance(model, oX, oY, oZ, camera)
 
@@ -1896,8 +1918,12 @@ local function newFrame(x, y, w, h)
 			local rotX = object[4]
 			local rotY = object[5]
 			local rotZ = object[6]
-			if (rotX and rotX ~= 0) or (rotY and rotY ~= 0) or (rotZ and rotZ ~= 0) then
-				model = rotateCollapsedModel(model, rotX, rotY, rotZ)
+			local scaleX = object[10]
+			local scaleY = object[11]
+			local scaleZ = object[12]
+			if (rotX and rotX ~= 0) or (rotY and rotY ~= 0) or (rotZ and rotZ ~= 0) or
+				(scaleX and scaleX ~= 0) or (scaleY and scaleY ~= 0) or (scaleZ and scaleZ ~= 0) then
+					model = scaleAndRotateCollapsedModel(model, rotX, rotY, rotZ, scaleX, scaleY, scaleZ)
 			end
 			local oX = object[1]
 			local oY = object[2]
@@ -2001,7 +2027,7 @@ local function newFrame(x, y, w, h)
 	---@param rotY number?
 	---@param rotZ number?
 	---@return PineObject
-	function frame:newObject(model, x, y, z, rotX, rotY, rotZ)
+	function frame:newObject(model, x, y, z, rotX, rotY, rotZ, scaleX, scaleY, scaleZ)
 		local objModel = nil
 		local modelSize = nil
 
@@ -2025,6 +2051,7 @@ local function newFrame(x, y, w, h)
 			x, y, z,
 			rotX, rotY, rotZ,
 			objModel, modelSize,
+			scaleX, scaleY, scaleZ
 		}
 		object.frame = self
 
@@ -2046,6 +2073,16 @@ local function newFrame(x, y, w, h)
 			self[4] = newRotX or self[4]
 			self[5] = newRotY or self[5]
 			self[6] = newRotZ or self[6]
+		end
+
+		---Set the object's scale
+		---@param newScaleX number?
+		---@param newScaleY number?
+		---@param newScaleZ number?
+		function object:setScale(newScaleX, newScaleY, newScaleZ) -- Added for this demo
+			self[10] = newScaleX or self[10]
+			self[11] = newScaleY or self[11]
+			self[12] = newScaleZ or self[12]
 		end
 
 		---Set the object's position

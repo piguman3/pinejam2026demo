@@ -3,14 +3,18 @@ local Pine3D = require("Pine3D")
 --[[
     Things left to do: (that i can think of now)
 
-    - [ ] Scaling
+    - [X] Scaling
     - [ ] Frame interpolation
     - [ ] Better text support in the python script
     - [ ] Hide objects
     - [ ] Export camera movement
     - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] Timing, figure that out
+    
     - [ ] THE ACTUAL ANIMATION!!
+
+    - [ ] License + README
+    - [ ] Pinejam post + Installer
 
 ]]--
 
@@ -98,7 +102,7 @@ local function updateModelFrame(model, keyframe)
         elseif type==1 then -- Rotation
             model[channel+1] = value
         elseif type==2 then -- Scale (TODO)
-
+            model[channel+4] = value
         elseif type==3 then -- Hide (TODO)
 
         end
@@ -161,7 +165,7 @@ local function graphics()
         playedFrames = currentFrame
 
         if playedFrames>33 then
-            startTime = os.epoch("utc")
+            --startTime = os.epoch("utc")
         end
 
         ThreeDFrame:drawObjects(objects)
