@@ -1402,7 +1402,15 @@ local function newFrame(x, y, w, h)
 		if #model <= 0 then
 			return
 		end
-		local modelSize = object[8]
+
+		local multiplier = nil
+		for x=10,12 do 
+			local scale = object[x] or 1
+			if (multiplier==nil) or (scale>multiplier) then
+				multiplier = scale
+			end
+		end
+		local modelSize = object[8] * multiplier
 
 		local dX = xCameraOffset
 		local dY = yCameraOffset
