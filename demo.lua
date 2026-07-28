@@ -8,6 +8,7 @@ local Pine3D = require("Pine3D")
     - [ ] Better text support in the python script
     - [ ] Hide objects
     - [ ] Export camera movement
+    - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] Timing, figure that out
     - [ ] THE ACTUAL ANIMATION!!
 
