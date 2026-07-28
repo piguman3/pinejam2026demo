@@ -4,12 +4,13 @@ local Pine3D = require("Pine3D")
     Things left to do: (that i can think of now)
 
     - [X] Scaling
-    - [ ] Frame interpolation
-    - [ ] Better text support in the python script
+    - [X] Frame interpolation (with easing!)
+    - [X] Better text support in the python script
     - [ ] Hide objects
     - [ ] Export camera movement
     - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] Timing, figure that out
+    - [ ] Animation data block
 
     - [ ] THE ACTUAL ANIMATION!!
 
@@ -92,22 +93,33 @@ local function parseBinary(filename)
     return output
 end
 
-local function updateModelFrame(model, keyframe)
-    for channel,value in pairs(keyframe) do
-        local type = math.floor(channel/3)
-        local axis = channel%3
+local function lerp(a, b, t) return a + (b - a) * t end
 
-        if type==0 then -- Location
-            model[channel+1] = value
-        elseif type==1 then -- Rotation
-            model[channel+1] = value
-        elseif type==2 then -- Scale
-            model[channel+4] = value
-        elseif type==3 then -- Hide (TODO)
+local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerpVal)
+    local valuePrev = prevKeyframe[channel]
+    local valueNext = nextKeyframe[channel]
 
-        end
+    local valueLerp
+    if valuePrev and valueNext then
+        valueLerp = lerp(valuePrev, valueNext, lerpVal)
+    end
+
+    local type = math.floor(channel/3)
+    local axis = channel%3
+
+    if type==0 then -- Location
+        model[channel+1] = valueLerp
+    elseif type==1 then -- Rotation
+        model[channel+1] = valueLerp
+    elseif type==2 then -- Scale
+        model[channel+4] = valueLerp
+    elseif type==3 then -- Hide (TODO)
 
     end
+end
+
+local function easeInOutSine(x)
+    return -(math.cos(math.pi * x) - 1) / 2;
 end
 
 local function graphics()
@@ -150,22 +162,37 @@ local function graphics()
     repeat sleep() until musicReady
 
     local startTime = os.epoch("utc")
-    local playedFrames = 0
     while 1 do
         local currentFrame = math.floor((os.epoch("utc") - startTime) / 50)
 
         for modelID,keyframes in pairs(anim.keyframes) do
-            for x=playedFrames,currentFrame do
-                if keyframes[x] then
-                    updateModelFrame(objects[modelID], keyframes[x])
+            for channel=0,9 do
+                local prevFrame = currentFrame
+                while (keyframes[prevFrame]==nil) or (keyframes[prevFrame][channel]==nil) do -- Find keyframe on the left
+                    if prevFrame<=0 then
+                        prevFrame = 0
+                        break
+                    end
+                    prevFrame = prevFrame - 1 
                 end
+
+                local nextFrame = currentFrame
+                while (keyframes[nextFrame]==nil) or (keyframes[nextFrame][channel]==nil) do -- Find keyframe on the right
+                    if nextFrame>=1000 then -- TODO: make this actually know what the last frame is
+                        nextFrame = prevFrame
+                        break
+                    end
+                    nextFrame = nextFrame + 1 
+                end
+
+                local lerpVal
+                if nextFrame~=prevFrame then
+                    lerpVal = (currentFrame - prevFrame) / (nextFrame - prevFrame)
+                else
+                    lerpVal = 0
+                end
+                updateModelFrame(objects[modelID], keyframes[prevFrame], keyframes[nextFrame], channel, easeInOutSine(lerpVal))
             end
-        end
-
-        playedFrames = currentFrame
-
-        if playedFrames>33 then
-            --startTime = os.epoch("utc")
         end
 
         ThreeDFrame:drawObjects(objects)
