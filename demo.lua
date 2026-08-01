@@ -12,13 +12,15 @@ local Pine3D = require("Pine3D")
     - [X] Animation data block
 
     - [ ] THE ACTUAL ANIMATION!!
-        - [ ] Grease pencil storyboard main actions + effects
+        - [X] Grease pencil storyboard main actions + effects
         - [ ] Main animation
         - [ ] Effects (the demo shit)
 
     - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] License + README
     - [ ] Pinejam post + Installer
+
+    proper rotation is ZYX, i think
 
 ]]--
 
@@ -76,7 +78,9 @@ local actions = {
     [3] = function(file, output) -- Add list of camera keyframes (u8 channel, u16 keyframecount, [u16 frame_number, f32 value, ...])
         -- Yes, this is repeated code. I don't know man.
         local modelID = -1
-        output.keyframes[modelID] = {}
+        if output.keyframes[modelID]==nil then
+            output.keyframes[modelID] = {}
+        end
         local channel = string.byte(file.read(1)) -- 0:location, 1:rotation, 2:fov in degrees (times 3)
 
         local count = string.unpack(">I2", file.read(2))
@@ -134,13 +138,16 @@ local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerp
     local type = math.floor(channel/3)
     local axis = channel%3
 
-    if type==0 then -- Location
-        model[channel+1] = valueLerp
-    elseif type==1 then -- Rotation
-        model[channel+1] = valueLerp
-    elseif type==2 then -- Scale
-        model[channel+4] = valueLerp
-    elseif type==3 then -- Hide
+    if valueLerp then
+        if type==0 then -- Location
+            model[channel+1] = valueLerp
+        elseif type==1 then -- Rotation
+            model[channel+1] = valueLerp
+        elseif type==2 then -- Scale
+            model[channel+4] = valueLerp
+        end
+    end
+    if type==3 then -- Hide
         model.visible = valuePrev==0
     end
 end
@@ -157,9 +164,21 @@ local function updateCameraFrame(ThreeDFrame, prevKeyframe, nextKeyframe, channe
         local axis = channel%3
 
         if type==0 then -- Location
-            ThreeDFrame.camera[channel+1] = valueLerp
+            if axis==0 then
+                ThreeDFrame:setCamera(valueLerp, nil, nil)
+            elseif axis==1 then
+                ThreeDFrame:setCamera(nil, valueLerp, nil)
+            elseif axis==2 then
+                ThreeDFrame:setCamera(nil, nil, valueLerp)
+            end
         elseif type==1 then -- Rotation
-            ThreeDFrame.camera[channel+1] = valueLerp
+            if axis==0 then
+                ThreeDFrame:setCamera(nil, nil, nil, valueLerp, nil, nil)
+            elseif axis==1 then
+                ThreeDFrame:setCamera(nil, nil, nil, nil, valueLerp, nil)
+            elseif axis==2 then
+                ThreeDFrame:setCamera(nil, nil, nil, nil, nil, valueLerp)
+            end
         elseif type==2 then -- FOV
             ThreeDFrame:setFoV(valueLerp)
         end
@@ -234,18 +253,16 @@ local function graphics()
 
                 local nextFrame = currentFrame
                 while (keyframes[nextFrame]==nil) or (keyframes[nextFrame][channel]==nil) do -- Find keyframe on the right
-                    if nextFrame>=1000 then -- TODO: make this actually know what the last frame is
+                    if nextFrame>=anim.frameEnd then
                         nextFrame = prevFrame
                         break
                     end
                     nextFrame = nextFrame + 1 
                 end
 
-                local lerpVal
+                local lerpVal = 0
                 if nextFrame~=prevFrame then
                     lerpVal = (currentFrame - prevFrame) / (nextFrame - prevFrame)
-                else
-                    lerpVal = 0
                 end
                 if modelID>0 then
                     updateModelFrame(objects[modelID], keyframes[prevFrame], keyframes[nextFrame], channel, easeInOutSine(lerpVal))
@@ -256,21 +273,29 @@ local function graphics()
         end
 
         local visibleobjects = {}
+        local i = 0
         for k,v in pairs(objects) do
             if v.visible then
-                visibleobjects[k] = objects[k]
+                i = i + 1
+                visibleobjects[i] = objects[k]
             end
         end
 
         ThreeDFrame:drawObjects(visibleobjects)
         ThreeDFrame:drawBuffer()
+
+        term.setCursorPos(1,1)
+        -- Print debug
+
+        --
+
         sleep()
     end
 end
 
 local function music()
     if periphemu then -- For CraftOS-PC users
-        periphemu.create("right", "speaker")
+        periphemu.create("bottom", "speaker")
     end
 
     local dfpwm = require("cc.audio.dfpwm")
@@ -292,4 +317,4 @@ local function music()
     end
 end
 
-parallel.waitForAll(graphics, music)
+parallel.waitForAny(graphics, music)
