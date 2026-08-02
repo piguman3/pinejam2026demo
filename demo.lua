@@ -285,8 +285,19 @@ local function graphics()
         ThreeDFrame:drawBuffer()
 
         term.setCursorPos(1,1)
+        term.setBackgroundColor(colors.red)
         -- Print debug
-
+        term.write(currentFrame)
+        term.setCursorPos(4,1)
+        term.write("/")
+        term.setCursorPos(5,1)
+        term.write(anim.frameEnd)
+        term.setCursorPos(1, 2)
+        term.write(currentFrame * 0.05)
+        term.setCursorPos(5,2)
+        term.write("/")
+        term.setCursorPos(6,2)
+        term.write(tostring(anim.frameEnd * 0.05) .. " secs")
         --
 
         sleep()
