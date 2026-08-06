@@ -1,4 +1,4 @@
-For this year's Pinejam, I have made a weird 2D polygonal demo using Pine3D and Blender. You can see it right now* on Pinestore!
+For this year's Pinejam, I have made a weird 2D polygonal demo using Pine3D and Blender, with the song "Jane" by The Long Faces. You can see it right now* on Pinestore!
 
 ##### **if now is after 10:00 UTC on the 8th of August 2026*
 
