@@ -16,6 +16,7 @@ local Pine3D = require("Pine3D")
         - [ ] Main animation
         - [ ] Effects (the demo shit)
 
+    - [ ] In-game seems a little slow and off sync with the music
     - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [ ] License + README
     - [ ] Pinejam post + Installer
@@ -189,6 +190,8 @@ local function easeInOutSine(x)
     return -(math.cos(math.pi * x) - 1) / 2;
 end
 
+local startTime
+
 local function graphics()
     local newcolors = {
         0xffffff,
@@ -228,8 +231,7 @@ local function graphics()
 
     graphicsReady = true
     repeat sleep() until musicReady
-
-    local startTime = os.epoch("utc")
+    startTime = os.epoch("utc")
     while 1 do
         local currentFrame = math.floor((os.epoch("utc") - startTime) / 50) + anim.frameStart
 
@@ -284,20 +286,20 @@ local function graphics()
         ThreeDFrame:drawObjects(visibleobjects)
         ThreeDFrame:drawBuffer()
 
-        term.setCursorPos(1,1)
-        term.setBackgroundColor(colors.red)
-        -- Print debug
-        term.write(currentFrame)
-        term.setCursorPos(4,1)
-        term.write("/")
-        term.setCursorPos(5,1)
-        term.write(anim.frameEnd)
-        term.setCursorPos(1, 2)
-        term.write(currentFrame * 0.05)
-        term.setCursorPos(5,2)
-        term.write("/")
-        term.setCursorPos(6,2)
-        term.write(tostring(anim.frameEnd * 0.05) .. " secs")
+        -- term.setCursorPos(1,1)
+        -- term.setBackgroundColor(colors.red)
+        -- -- Print debug
+        -- term.write(currentFrame)
+        -- term.setCursorPos(4,1)
+        -- term.write("/")
+        -- term.setCursorPos(5,1)
+        -- term.write(anim.frameEnd)
+        -- term.setCursorPos(1, 2)
+        -- term.write(currentFrame * 0.05)
+        -- term.setCursorPos(5,2)
+        -- term.write("/")
+        -- term.setCursorPos(6,2)
+        -- term.write(tostring(anim.frameEnd * 0.05) .. " secs")
         --
 
         sleep()
@@ -319,6 +321,7 @@ local function music()
     sleep((nextTime-time)/1000) -- Weird idea, not sure if it actually does anything
     musicReady = true
     repeat sleep() until graphicsReady
+    startTime = os.epoch("utc")
     for chunk in io.lines("janecut.dfpwm", 16 * 1024) do
         local buffer = decoder(chunk)
 
