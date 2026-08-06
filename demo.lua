@@ -127,7 +127,7 @@ end
 
 local function lerp(a, b, t) return a + (b - a) * t end
 
-local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerpVal, isvisible)
+local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerpVal)
     local valuePrev = prevKeyframe[channel]
     local valueNext = nextKeyframe[channel]
 
@@ -139,7 +139,7 @@ local function updateModelFrame(model, prevKeyframe, nextKeyframe, channel, lerp
     local type = math.floor(channel/3)
     local axis = channel%3
 
-    if valueLerp then
+    if valueLerp and (model.visible) then
         if type==0 then -- Location
             model[channel+1] = valueLerp
         elseif type==1 then -- Rotation
@@ -243,7 +243,7 @@ local function graphics()
         end
 
         for modelID,keyframes in pairs(anim.keyframes) do
-            for channel=0,9 do
+            for channel=9,0,-1 do
                 local prevFrame = currentFrame
                 while (keyframes[prevFrame]==nil) or (keyframes[prevFrame][channel]==nil) do -- Find keyframe on the left
                     if prevFrame<=0 then
