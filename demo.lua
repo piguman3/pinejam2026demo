@@ -314,6 +314,10 @@ local function music()
     local dfpwm = require("cc.audio.dfpwm")
     local speaker = peripheral.find("speaker")
 
+    if not speaker then
+        error("No speaker found")
+    end
+
     local decoder = dfpwm.make_decoder()
 
     local time = os.epoch("utc")
