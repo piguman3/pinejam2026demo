@@ -18,8 +18,8 @@ local Pine3D = require("Pine3D")
 
     - [ ] In-game seems a little slow and off sync with the music
     - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
-    - [ ] License + README
-    - [ ] Pinejam post + Installer
+    - [X] License + README
+    - [X] Pinejam post + Installer
 
     proper rotation is ZYX, i think
 
