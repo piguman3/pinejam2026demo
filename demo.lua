@@ -1,4 +1,5 @@
 local Pine3D = require("Pine3D")
+local args = {...}
 
 --[[
     Things left to do: (that i can think of now)
@@ -283,7 +284,11 @@ local function graphics()
 
                 local lerpVal = 0
                 if nextFrame~=prevFrame then
-                    lerpVal = (currentFrame - prevFrame) / (nextFrame - prevFrame)
+                    local currentFrameVal = currentFrame
+                    if args[1] == "-nomaxfps" then
+                        currentFrameVal = (os.epoch("utc") - startTime) / 50 + anim.frameStart
+                    end
+                    lerpVal = (currentFrameVal - prevFrame) / (nextFrame - prevFrame)
                 end
                 if modelID>0 then
                     updateModelFrame(objects[modelID], keyframes[prevFrame], keyframes[nextFrame], channel, easeInOutSine(lerpVal))
