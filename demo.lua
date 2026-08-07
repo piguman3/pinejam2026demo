@@ -231,7 +231,9 @@ local function graphics()
 
     graphicsReady = true
     repeat sleep() until musicReady
-    startTime = os.epoch("utc")
+    if not startTime then
+        startTime = os.epoch("utc")
+    end
     while 1 do
         local currentFrame = math.floor((os.epoch("utc") - startTime) / 50) + anim.frameStart
 
@@ -320,12 +322,12 @@ local function music()
 
     local decoder = dfpwm.make_decoder()
 
-    local time = os.epoch("utc")
-    local nextTime = math.ceil(time/1000) * 1000
-    sleep((nextTime-time)/1000) -- Weird idea, not sure if it actually does anything
+    sleep(0.05)
     musicReady = true
     repeat sleep() until graphicsReady
-    startTime = os.epoch("utc")
+    if not startTime then
+        startTime = os.epoch("utc")
+    end
     for chunk in io.lines("janecut.dfpwm", 16 * 1024) do
         local buffer = decoder(chunk)
 
