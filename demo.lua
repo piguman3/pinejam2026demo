@@ -11,13 +11,12 @@ local Pine3D = require("Pine3D")
     - [X] Timing, figure that out (seems fine? might look into this later again though.)
     - [X] Animation data block
 
-    - [ ] THE ACTUAL ANIMATION!!
+    - [X] THE ACTUAL ANIMATION!!
         - [X] Grease pencil storyboard main actions + effects
-        - [ ] Main animation
-        - [ ] Effects (the demo shit)
+        - [X] Main animation
 
     - [ ] In-game seems a little slow and off sync with the music
-    - [ ] Aspect ratios (aka, make sure the animation looks correct on all monitors)
+    - [X] Aspect ratios (aka, make sure the animation looks correct on all monitors)
     - [X] License + README
     - [X] Pinejam post + Installer
 
@@ -192,6 +191,24 @@ end
 
 local startTime
 
+local function drawText(x, y, text)
+    term.setCursorPos(x, y)
+    term.write(text)
+end
+
+local function drawRect(ThreeDFrame, x1, y1, x2, y2, col)
+    for x=x1,x2 do
+        for y=y1, y2 do
+            ThreeDFrame.buffer:setPixel(x, y, col)
+        end
+    end
+end
+
+local nameList = {"RedToast", "Sima", "koolaid", "JackMacWindows", "Xella", "Sammy", 
+                  "autumn", "9551dev ", "Minki the Avali", "Shrekshellraiser", "Lemmmy", 
+                  "Rose", "Wojbie", "Level_YZ", "King green", "AlexDevs", "tehgreatdoge", 
+                  "Fatboychummy", "awesomehome7_dj", "umnikos", "and YOU!"}
+
 local function graphics()
     local newcolors = {
         0xffffff,
@@ -286,25 +303,42 @@ local function graphics()
         end
 
         ThreeDFrame:drawObjects(visibleobjects)
+
+        -- Black bars
+        local width = ThreeDFrame.buffer.width
+        local height = ThreeDFrame.buffer.height
+        local ratio = 114 / 200
+        drawRect(ThreeDFrame, 1, 1, ThreeDFrame.buffer.width, height/2 - width*ratio/2, colors.black)
+        drawRect(ThreeDFrame, 1, height/2 + width*ratio/2+1, width, height+1, colors.black)
+
         ThreeDFrame:drawBuffer()
 
-        -- term.setCursorPos(1,1)
-        -- term.setBackgroundColor(colors.red)
-        -- -- Print debug
-        -- term.write(currentFrame)
-        -- term.setCursorPos(4,1)
-        -- term.write("/")
-        -- term.setCursorPos(5,1)
-        -- term.write(anim.frameEnd)
-        -- term.setCursorPos(1, 2)
-        -- term.write(currentFrame * 0.05)
-        -- term.setCursorPos(5,2)
-        -- term.write("/")
-        -- term.setCursorPos(6,2)
-        -- term.write(tostring(anim.frameEnd * 0.05) .. " secs")
-        --
+        if currentFrame>=646 then
+            local width, height = term.getSize()
 
-        sleep()
+            width = math.min(width-2, 85) 
+
+            drawText(3, 3, "Salutes to:")
+            local wx = 3
+            local wy = 5
+            for k,v in pairs(nameList) do
+                local str = v .. "  "
+
+                if wx+#str>width then
+                    wx = 3
+                    wy = wy + 2
+                end
+
+                drawText(wx, wy, str)
+                wx = wx + #str
+            end
+
+            term.setCursorPos(1, height)
+            return
+        end
+
+        os.queueEvent("pen")
+        os.pullEvent("pen")
     end
 end
 
@@ -322,7 +356,7 @@ local function music()
 
     local decoder = dfpwm.make_decoder()
 
-    sleep(0.05)
+    sleep(0.105)
     musicReady = true
     repeat sleep() until graphicsReady
     if not startTime then
@@ -337,4 +371,4 @@ local function music()
     end
 end
 
-parallel.waitForAny(graphics, music)
+parallel.waitForAll(graphics, music)
