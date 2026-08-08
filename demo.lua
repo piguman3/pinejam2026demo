@@ -205,10 +205,17 @@ local function drawRect(ThreeDFrame, x1, y1, x2, y2, col)
     end
 end
 
+local function shuffle(list)
+    for i = #list, 2, -1 do
+        local j = math.random(i)
+        list[i], list[j] = list[j], list[i]
+    end
+end
+
 local nameList = {"RedToast", "Sima", "koolaid", "JackMacWindows", "Xella", "Sammy", "user2w", 
                   "autumn", "9551dev ", "Minki the Avali", "Shrekshellraiser", "Lemmmy", 
                   "Rose", "Wojbie", "Level_YZ", "King green", "AlexDevs", "tehgreatdoge", 
-                  "Fatboychummy", "awesomehome7_dj", "umnikos", "Aybri", "and YOU!"}
+                  "Fatboychummy", "awesomehome7_dj", "umnikos", "Aybri"}
 
 local function graphics()
     local newcolors = {
@@ -323,7 +330,12 @@ local function graphics()
 
             width = math.min(width-2, 85) 
 
-            drawText(3, 3, "Salutes to:")
+            drawText(3, 3, "Salutes to: (In random order)")
+
+            shuffle(nameList)
+
+            table.insert(nameList, "and YOU!")
+
             local wx = 3
             local wy = 5
             for k,v in pairs(nameList) do
