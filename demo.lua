@@ -208,7 +208,7 @@ end
 local nameList = {"RedToast", "Sima", "koolaid", "JackMacWindows", "Xella", "Sammy", 
                   "autumn", "9551dev ", "Minki the Avali", "Shrekshellraiser", "Lemmmy", 
                   "Rose", "Wojbie", "Level_YZ", "King green", "AlexDevs", "tehgreatdoge", 
-                  "Fatboychummy", "awesomehome7_dj", "umnikos", "and YOU!"}
+                  "Fatboychummy", "awesomehome7_dj", "umnikos", "Aybri", "and YOU!"}
 
 local function graphics()
     local newcolors = {
