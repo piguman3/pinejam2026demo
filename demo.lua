@@ -105,7 +105,7 @@ local actions = {
 }
 
 local function parseBinary(filename)
-    local file = fs.open(filename, "r")
+    local file = fs.open(filename, "rb")
     local output = { 
         models = {},
         keyframes = {}
