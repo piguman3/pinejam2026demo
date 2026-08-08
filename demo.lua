@@ -205,7 +205,7 @@ local function drawRect(ThreeDFrame, x1, y1, x2, y2, col)
     end
 end
 
-local nameList = {"RedToast", "Sima", "koolaid", "JackMacWindows", "Xella", "Sammy", 
+local nameList = {"RedToast", "Sima", "koolaid", "JackMacWindows", "Xella", "Sammy", "user2w", 
                   "autumn", "9551dev ", "Minki the Avali", "Shrekshellraiser", "Lemmmy", 
                   "Rose", "Wojbie", "Level_YZ", "King green", "AlexDevs", "tehgreatdoge", 
                   "Fatboychummy", "awesomehome7_dj", "umnikos", "Aybri", "and YOU!"}
