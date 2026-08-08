@@ -360,15 +360,16 @@ local function graphics()
 end
 
 local function music()
-    if periphemu then -- For CraftOS-PC users
-        periphemu.create("bottom", "speaker")
-    end
-
     local dfpwm = require("cc.audio.dfpwm")
     local speaker = peripheral.find("speaker")
 
     if not speaker then
-        error("No speaker found")
+        if periphemu then -- For CraftOS-PC users
+            periphemu.create("bottom", "speaker")
+            speaker = peripheral.find("speaker")
+        else
+            error("No speaker found")
+        end
     end
 
     local decoder = dfpwm.make_decoder()
