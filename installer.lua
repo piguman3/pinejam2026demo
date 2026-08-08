@@ -1,5 +1,15 @@
 local function downloadfile(name)
-    shell.run("wget https://github.com/piguman3/PineJam2026Demo/raw/refs/heads/main/" .. name)
+    local absPath = shell.resolve(name)
+
+    print("Downloading " .. name .. "...")
+
+    local request = http.get("https://github.com/piguman3/pinejam2026demo/raw/refs/heads/main/" .. name)
+    local newContents = request.readAll()
+    request.close()
+
+    local f = fs.open(absPath, "wb")
+    f.write(newContents)
+    f.close()
 end
 
 print("Downloading files!")
